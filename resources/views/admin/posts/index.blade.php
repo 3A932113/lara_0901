@@ -1,59 +1,113 @@
-@extends('admin.layouts.master')
+@extends('layouts.master')
 
-@section('page-title', 'Article list')
+@section('page-title', 'Blog Home')
+
+@section('page-style')
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="{{ asset('css/posts-styles.css') }}" rel="stylesheet"/>
+@endsection
 
 @section('page-content')
-<div class="container-fluid px-4">
-    <h1 class="mt-4">文章管理</h1>
-    <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item active">文章一覽表</li>
-    </ol>
-    <div class="alert alert-success alert-dismissible" role="alert" id="liveAlert">
-        <strong>完成！</strong> 成功儲存文章
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+
+    @include('posts.shared.header')
+
+    <!-- Page content-->
+    <div class="container">
+        <div class="row">
+            <!-- Blog entries-->
+            <div class="col-lg-8">
+                <!-- Featured blog post-->
+                <div class="card mb-4">
+                    <a href="#!"><img class="card-img-top" src="https://dummyimage.com/850x350/dee2e6/6c757d.jpg"
+                                      alt="..."/></a>
+                    <div class="card-body">
+                        <div class="small text-muted">January 1, 2022</div>
+                        <h2 class="card-title">Featured Post Title</h2>
+                        <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reiciendis
+                            aliquid atque, nulla? Quos cum ex quis soluta, a laboriosam. Dicta expedita corporis animi
+                            vero voluptate voluptatibus possimus, veniam magni quis!</p>
+                        <a class="btn btn-primary" href="#!">Read more →</a>
+                    </div>
+                </div>
+                <!-- Nested row for non-featured blog posts-->
+                <div class="row">
+                        @foreach($posts as $post)
+                            <div class="col-lg-6">
+                                    <!-- Blog post-->
+                                    <div class="card mb-4">
+                                        <a href="{{ route('posts.show', $post->id) }}">
+                                            <img class="card-img-top" src="https://dummyimage.com/700x350/dee2e6/6c757d.jpg" alt="..."/>
+                                        </a>
+                                        <div class="card-body">
+                                            <div class="small text-muted">{{ $post->updated_at->diffForHumans() }}</div>
+                                            <h2 class="card-title h4">{{ $post->title}}</h2>
+                                            <p class="card-text">
+                                                {{ Str::limit($post->content, 30) }}
+                                            </p>
+                                            <a class="btn btn-primary" href="{{ route('posts.show', $post->id) }}">Read more →</a>
+                                        </div>
+                                    </div>
+                            </div>
+                    @endforeach
+                </div>
+                <!-- Pagination-->
+                <nav aria-label="Pagination">
+                    <hr class="my-0"/>
+                    <ul class="pagination justify-content-center my-4">
+                        <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1" aria-disabled="true">Newer</a>
+                        </li>
+                        <li class="page-item active" aria-current="page"><a class="page-link" href="#!">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#!">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#!">3</a></li>
+                        <li class="page-item disabled"><a class="page-link" href="#!">...</a></li>
+                        <li class="page-item"><a class="page-link" href="#!">15</a></li>
+                        <li class="page-item"><a class="page-link" href="#!">Older</a></li>
+                    </ul>
+                </nav>
+            </div>
+            <!-- Side widgets-->
+            <div class="col-lg-4">
+                <!-- Search widget-->
+                <div class="card mb-4">
+                    <div class="card-header">Search</div>
+                    <div class="card-body">
+                        <div class="input-group">
+                            <input class="form-control" type="text" placeholder="Enter search term..."
+                                   aria-label="Enter search term..." aria-describedby="button-search"/>
+                            <button class="btn btn-primary" id="button-search" type="button">Go!</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Categories widget-->
+                <div class="card mb-4">
+                    <div class="card-header">Categories</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <ul class="list-unstyled mb-0">
+                                    <li><a href="#!">Web Design</a></li>
+                                    <li><a href="#!">HTML</a></li>
+                                    <li><a href="#!">Freebies</a></li>
+                                </ul>
+                            </div>
+                            <div class="col-sm-6">
+                                <ul class="list-unstyled mb-0">
+                                    <li><a href="#!">JavaScript</a></li>
+                                    <li><a href="#!">CSS</a></li>
+                                    <li><a href="#!">Tutorials</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Side widget-->
+                <div class="card mb-4">
+                    <div class="card-header">Side Widget</div>
+                    <div class="card-body">You can put anything you want inside of these side widgets. They are easy to
+                        use, and feature the Bootstrap 5 card component!
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-        <a class="btn btn-success btn-sm" href="{{ route('admin.posts.create') }}">新增</a>
-    </div>
-    <table class="table">
-        <thead>
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col" style="text-align: left">標題</th>
-            {{--            <th scope="col">標題</th>--}}
-            <th scope="col" style="text-align: right">精選?</th>
-            <th scope="col">功能</th>
-        </tr>
-        </thead>
-        <tbody>
-        {{--        @foreach(range(1, 10) as $id)--}}
-        @foreach($posts as $post)
-            <tr>
-                <td style="text-align: right">{{$post->id}}</td>
-                <td>{{$post->title}}</td>
-                <td style="text-align: right">{{($post->is_feature)? 'v' : 'x'}}</td>
-                <td>
-                    <a class="btn btn-sm btn-primary" href="{{route('admin.posts.edit', $post->id)}}">編輯</a>
-                    {{--                    <a href="{{route('admin.posts.edit', $post->id)}}">編輯</a>--}}
-                    /
-                    <form action="{{route('admin.posts.destroy', $post->id)}}" method="POST" style="display: inline-block">
-                        {{--                        @method('DELETE')--}}
-                        {{--                        @csrf--}}
-                        {{method_field('DELETE')}}
-                        {{csrf_field()}}
-                        <button class="btn btn-sm btn-danger" type="submit">刪除</button>
-                    </form>
-                    {{--                    <a href="#">刪除</a>--}}
-                </td>
-                {{--                <th scope="row" style="width: 50px">{{ $id }}</th>--}}
-                {{--                <td>{{ '標題' . $id }}</td>--}}
-                {{--                <td style="width: 150px">--}}
-                {{--                    <button type="button" class="btn btn-primary btn-sm">編輯</button>--}}
-                {{--                    <button type="button" class="btn btn-danger btn-sm">刪除</button>--}}
-                {{--                </td>--}}
-            </tr>
-        @endforeach
-        </tbody>
-    </table>
-</div>
 @endsection
